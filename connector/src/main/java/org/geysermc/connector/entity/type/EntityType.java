@@ -26,18 +26,17 @@
 package org.geysermc.connector.entity.type;
 
 import lombok.Getter;
-import org.geysermc.connector.entity.*;
-import org.geysermc.connector.entity.living.*;
-import org.geysermc.connector.entity.living.animal.*;
-import org.geysermc.connector.entity.living.animal.horse.*;
-import org.geysermc.connector.entity.living.animal.tameable.CatEntity;
-import org.geysermc.connector.entity.living.animal.tameable.ParrotEntity;
-import org.geysermc.connector.entity.living.animal.tameable.WolfEntity;
-import org.geysermc.connector.entity.living.merchant.AbstractMerchantEntity;
-import org.geysermc.connector.entity.living.merchant.VillagerEntity;
-import org.geysermc.connector.entity.living.monster.*;
-import org.geysermc.connector.entity.living.monster.raid.*;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.type.living.*;
+import org.geysermc.connector.entity.type.living.animal.*;
+import org.geysermc.connector.entity.type.living.animal.horse.*;
+import org.geysermc.connector.entity.type.living.animal.tameable.CatEntity;
+import org.geysermc.connector.entity.type.living.animal.tameable.ParrotEntity;
+import org.geysermc.connector.entity.type.living.animal.tameable.WolfEntity;
+import org.geysermc.connector.entity.type.living.merchant.AbstractMerchantEntity;
+import org.geysermc.connector.entity.type.living.merchant.VillagerEntity;
+import org.geysermc.connector.entity.type.living.monster.*;
+import org.geysermc.connector.entity.type.living.monster.raid.*;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 
 import java.util.ArrayList;
 import java.util.List;

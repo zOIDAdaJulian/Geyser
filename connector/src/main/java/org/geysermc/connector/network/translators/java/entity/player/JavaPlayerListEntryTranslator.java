@@ -25,13 +25,15 @@
 
 package org.geysermc.connector.network.translators.java.entity.player;
 
+import com.github.steveice10.mc.auth.data.GameProfile;
 import com.github.steveice10.mc.protocol.data.game.PlayerListEntry;
 import com.github.steveice10.mc.protocol.data.game.PlayerListEntryAction;
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerPlayerListEntryPacket;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.packet.PlayerListPacket;
 import org.geysermc.connector.GeyserConnector;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.EntityDefinitions;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
@@ -39,6 +41,7 @@ import org.geysermc.connector.skin.SkinManager;
 
 @Translator(packet = ServerPlayerListEntryPacket.class)
 public class JavaPlayerListEntryTranslator extends PacketTranslator<ServerPlayerListEntryPacket> {
+
     @Override
     public void translate(GeyserSession session, ServerPlayerListEntryPacket packet) {
         if (packet.getAction() != PlayerListEntryAction.ADD_PLAYER && packet.getAction() != PlayerListEntryAction.REMOVE_PLAYER)
@@ -62,14 +65,19 @@ public class JavaPlayerListEntryTranslator extends PacketTranslator<ServerPlayer
 
                     if (playerEntity == null) {
                         // It's a new player
-                        playerEntity = new PlayerEntity(
-                                entry.getProfile(),
+                        playerEntity = EntityDefinitions.PLAYER.newEntity(
+                                session,
                                 -1,
                                 session.getEntityCache().getNextEntityId().incrementAndGet(),
                                 Vector3f.ZERO,
                                 Vector3f.ZERO,
                                 Vector3f.ZERO
                         );
+
+                        GameProfile profile = playerEntity.getProfile();
+                        playerEntity.setProfile(profile);
+                        playerEntity.setUuid(profile.getId());
+                        playerEntity.setUsername(profile.getName());
 
                         session.getEntityCache().addPlayerEntity(playerEntity);
                     } else {

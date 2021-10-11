@@ -25,15 +25,17 @@
 
 package org.geysermc.connector.network.translators.java.entity.spawn;
 
-import org.geysermc.connector.entity.Entity;
-import org.geysermc.connector.entity.ExpOrbEntity;
-import org.geysermc.connector.entity.type.EntityType;
+import com.github.steveice10.mc.protocol.data.game.entity.type.EntityType;
+import org.geysermc.connector.entity.EntityDefinition;
+import org.geysermc.connector.entity.type.Entity;
+import org.geysermc.connector.entity.type.ExpOrbEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
 
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnExpOrbPacket;
 import com.nukkitx.math.vector.Vector3f;
+import org.geysermc.connector.registry.Registries;
 
 @Translator(packet = ServerSpawnExpOrbPacket.class)
 public class JavaSpawnExpOrbTranslator extends PacketTranslator<ServerSpawnExpOrbPacket> {
@@ -42,11 +44,18 @@ public class JavaSpawnExpOrbTranslator extends PacketTranslator<ServerSpawnExpOr
     public void translate(GeyserSession session, ServerSpawnExpOrbPacket packet) {
         Vector3f position = Vector3f.from(packet.getX(), packet.getY(), packet.getZ());
 
-        Entity entity = new ExpOrbEntity(
-                packet.getExp(), packet.getEntityId(), session.getEntityCache().getNextEntityId().incrementAndGet(),
-                EntityType.EXPERIENCE_ORB, position, Vector3f.ZERO, Vector3f.ZERO
+        EntityDefinition<?> definition = Registries.ENTITY_DEFINITIONS.get(EntityType.EXPERIENCE_ORB);
+        // noinspection ConstantConditions
+        Entity entity = definition.newEntity(
+                session,
+                packet.getEntityId(),
+                session.getEntityCache().getNextEntityId().incrementAndGet(),
+                position,
+                Vector3f.ZERO,
+                Vector3f.ZERO
         );
 
+        entity.postInitialize(packet);
         session.getEntityCache().spawnEntity(entity);
     }
 }

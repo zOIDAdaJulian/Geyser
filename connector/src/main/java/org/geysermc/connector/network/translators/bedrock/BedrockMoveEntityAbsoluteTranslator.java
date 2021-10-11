@@ -28,7 +28,7 @@ package org.geysermc.connector.network.translators.bedrock;
 import com.github.steveice10.mc.protocol.packet.ingame.client.world.ClientVehicleMovePacket;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.packet.MoveEntityAbsolutePacket;
-import org.geysermc.connector.entity.BoatEntity;
+import org.geysermc.connector.entity.type.BoatEntity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;

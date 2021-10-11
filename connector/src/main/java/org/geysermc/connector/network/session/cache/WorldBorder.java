@@ -33,7 +33,7 @@ import com.nukkitx.protocol.bedrock.packet.LevelEventPacket;
 import com.nukkitx.protocol.bedrock.packet.PlayerFogPacket;
 import lombok.Getter;
 import lombok.Setter;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 

@@ -35,7 +35,7 @@ import com.nukkitx.protocol.bedrock.packet.MoveEntityAbsolutePacket;
 import com.nukkitx.protocol.bedrock.packet.MovePlayerPacket;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.common.ChatColor;
-import org.geysermc.connector.entity.player.SessionPlayerEntity;
+import org.geysermc.connector.entity.type.player.SessionPlayerEntity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;

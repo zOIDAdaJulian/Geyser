@@ -76,12 +76,12 @@ import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.command.CommandSender;
 import org.geysermc.connector.common.AuthType;
 import org.geysermc.connector.configuration.EmoteOffhandWorkaroundOption;
-import org.geysermc.connector.entity.Entity;
-import org.geysermc.connector.entity.ItemFrameEntity;
-import org.geysermc.connector.entity.Tickable;
-import org.geysermc.connector.entity.attribute.GeyserAttributeType;
-import org.geysermc.connector.entity.player.SessionPlayerEntity;
-import org.geysermc.connector.entity.player.SkullPlayerEntity;
+import org.geysermc.connector.entity.type.Entity;
+import org.geysermc.connector.entity.type.ItemFrameEntity;
+import org.geysermc.connector.entity.type.Tickable;
+import org.geysermc.connector.entity.type.attribute.GeyserAttributeType;
+import org.geysermc.connector.entity.type.player.SessionPlayerEntity;
+import org.geysermc.connector.entity.type.player.SkullPlayerEntity;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.inventory.PlayerInventory;
 import org.geysermc.connector.network.session.auth.AuthData;
@@ -1033,7 +1033,7 @@ public class GeyserSession implements CommandSender {
             collisionManager.updateScaffoldingFlags(false);
         }
 
-        playerEntity.updateBedrockMetadata(this);
+        playerEntity.updateBedrockMetadata();
 
         if (mouseoverEntity != null) {
             // Horses, etc can change their property depending on if you're sneaking
@@ -1043,7 +1043,7 @@ public class GeyserSession implements CommandSender {
 
     private void setSneakingPose(boolean sneaking) {
         this.pose = sneaking ? Pose.SNEAKING : Pose.STANDING;
-        playerEntity.getMetadata().put(EntityData.BOUNDING_BOX_HEIGHT, sneaking ? 1.5f : playerEntity.getEntityType().getHeight());
+        playerEntity.getMetadata().put(EntityData.BOUNDING_BOX_HEIGHT, sneaking ? 1.5f : playerEntity.getDefinition().height());
         playerEntity.getMetadata().getFlags().setFlag(EntityFlag.SNEAKING, sneaking);
 
         collisionManager.updatePlayerBoundingBox();
@@ -1051,9 +1051,9 @@ public class GeyserSession implements CommandSender {
 
     public void setSwimming(boolean swimming) {
         this.pose = swimming ? Pose.SWIMMING : Pose.STANDING;
-        playerEntity.getMetadata().put(EntityData.BOUNDING_BOX_HEIGHT, swimming ? 0.6f : playerEntity.getEntityType().getHeight());
+        playerEntity.getMetadata().put(EntityData.BOUNDING_BOX_HEIGHT, swimming ? 0.6f : playerEntity.getDefinition().height());
         playerEntity.getMetadata().getFlags().setFlag(EntityFlag.SWIMMING, swimming);
-        playerEntity.updateBedrockMetadata(this);
+        playerEntity.updateBedrockMetadata();
     }
 
     public void setFlying(boolean flying) {
@@ -1062,7 +1062,7 @@ public class GeyserSession implements CommandSender {
         if (sneaking) {
             // update bounding box as it is not reduced when flying
             setSneakingPose(!flying);
-            playerEntity.updateBedrockMetadata(this);
+            playerEntity.updateBedrockMetadata();
         }
     }
 

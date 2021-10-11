@@ -25,6 +25,7 @@
 
 package org.geysermc.connector.registry;
 
+import com.github.steveice10.mc.protocol.data.game.entity.type.EntityType;
 import com.github.steveice10.mc.protocol.data.game.recipe.Recipe;
 import com.github.steveice10.mc.protocol.data.game.recipe.RecipeType;
 import com.github.steveice10.mc.protocol.data.game.world.effect.SoundEffect;
@@ -37,6 +38,7 @@ import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.geysermc.connector.entity.EntityDefinition;
 import org.geysermc.connector.network.translators.collision.translators.BlockCollision;
 import org.geysermc.connector.network.translators.effect.Effect;
 import org.geysermc.connector.network.translators.sound.SoundHandler;
@@ -49,6 +51,7 @@ import org.geysermc.connector.registry.type.ItemMappings;
 import org.geysermc.connector.registry.type.ParticleMapping;
 import org.geysermc.connector.registry.type.SoundMapping;
 
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,6 +89,11 @@ public class Registries {
      * A registry holding a CompoundTag of the known entity identifiers.
      */
     public static final SimpleRegistry<NbtMap> ENTITY_IDENTIFIERS = SimpleRegistry.create("bedrock/entity_identifiers.dat", RegistryLoaders.NBT);
+
+    /**
+     * A registry holding all the known entity definitions.
+     */
+    public static final SimpleMappedRegistry<EntityType, EntityDefinition<?>> ENTITY_DEFINITIONS = SimpleMappedRegistry.create(RegistryLoaders.empty(() -> new EnumMap<>(EntityType.class)));
 
     /**
      * A versioned registry which holds {@link ItemMappings} for each version. These item mappings contain

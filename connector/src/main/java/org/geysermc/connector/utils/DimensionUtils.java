@@ -33,7 +33,7 @@ import com.nukkitx.protocol.bedrock.packet.ChangeDimensionPacket;
 import com.nukkitx.protocol.bedrock.packet.MobEffectPacket;
 import com.nukkitx.protocol.bedrock.packet.StopSoundPacket;
 import org.geysermc.connector.GeyserConnector;
-import org.geysermc.connector.entity.Entity;
+import org.geysermc.connector.entity.type.Entity;
 import org.geysermc.connector.network.session.GeyserSession;
 
 import java.util.Set;

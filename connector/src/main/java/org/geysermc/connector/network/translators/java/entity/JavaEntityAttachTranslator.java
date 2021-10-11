@@ -30,7 +30,7 @@ import com.nukkitx.protocol.bedrock.data.entity.EntityData;
 import com.nukkitx.protocol.bedrock.data.entity.EntityEventType;
 import com.nukkitx.protocol.bedrock.data.entity.EntityFlag;
 import com.nukkitx.protocol.bedrock.packet.EntityEventPacket;
-import org.geysermc.connector.entity.Entity;
+import org.geysermc.connector.entity.type.Entity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
@@ -63,7 +63,7 @@ public class JavaEntityAttachTranslator extends PacketTranslator<ServerEntityAtt
                 // Is not being leashed
                 holderId.getMetadata().getFlags().setFlag(EntityFlag.LEASHED, false);
                 holderId.getMetadata().put(EntityData.LEASH_HOLDER_EID, -1L);
-                holderId.updateBedrockMetadata(session);
+                holderId.updateBedrockMetadata();
                 EntityEventPacket eventPacket = new EntityEventPacket();
                 eventPacket.setRuntimeEntityId(holderId.getGeyserId());
                 eventPacket.setType(EntityEventType.REMOVE_LEASH);
@@ -75,6 +75,6 @@ public class JavaEntityAttachTranslator extends PacketTranslator<ServerEntityAtt
 
         holderId.getMetadata().getFlags().setFlag(EntityFlag.LEASHED, true);
         holderId.getMetadata().put(EntityData.LEASH_HOLDER_EID, attachedToId.getGeyserId());
-        holderId.updateBedrockMetadata(session);
+        holderId.updateBedrockMetadata();
     }
 }

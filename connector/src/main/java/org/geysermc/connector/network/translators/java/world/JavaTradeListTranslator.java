@@ -35,7 +35,7 @@ import com.nukkitx.protocol.bedrock.data.entity.EntityData;
 import com.nukkitx.protocol.bedrock.data.inventory.ContainerType;
 import com.nukkitx.protocol.bedrock.data.inventory.ItemData;
 import com.nukkitx.protocol.bedrock.packet.UpdateTradePacket;
-import org.geysermc.connector.entity.Entity;
+import org.geysermc.connector.entity.type.Entity;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.inventory.MerchantContainer;
 import org.geysermc.connector.network.session.GeyserSession;

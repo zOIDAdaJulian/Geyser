@@ -33,8 +33,8 @@ import com.nukkitx.protocol.bedrock.packet.SetScorePacket;
 import lombok.Getter;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.GeyserLogger;
-import org.geysermc.connector.entity.Entity;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.type.Entity;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.utils.LanguageUtils;
 

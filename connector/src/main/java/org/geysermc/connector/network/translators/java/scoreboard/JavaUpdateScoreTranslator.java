@@ -32,7 +32,7 @@ import com.nukkitx.protocol.bedrock.data.entity.EntityData;
 import com.nukkitx.protocol.bedrock.packet.SetEntityDataPacket;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.GeyserLogger;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.session.cache.WorldCache;
 import org.geysermc.connector.network.translators.PacketTranslator;

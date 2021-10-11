@@ -25,13 +25,18 @@
 
 package org.geysermc.connector.network.translators.java.entity.spawn;
 
+import com.github.steveice10.mc.auth.data.GameProfile;
+import com.github.steveice10.mc.protocol.data.game.entity.type.EntityType;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket;
 import com.nukkitx.math.vector.Vector3f;
 import org.geysermc.connector.GeyserConnector;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.EntityDefinition;
+import org.geysermc.connector.entity.EntityDefinitions;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
+import org.geysermc.connector.registry.Registries;
 import org.geysermc.connector.utils.LanguageUtils;
 import org.geysermc.connector.skin.SkinManager;
 
@@ -42,11 +47,21 @@ public class JavaSpawnPlayerTranslator extends PacketTranslator<ServerSpawnPlaye
     public void translate(GeyserSession session, ServerSpawnPlayerPacket packet) {
         Vector3f position = Vector3f.from(packet.getX(), packet.getY(), packet.getZ());
         Vector3f rotation = Vector3f.from(packet.getYaw(), packet.getPitch(), packet.getYaw());
-
         PlayerEntity entity;
         if (packet.getUuid().equals(session.getPlayerEntity().getUuid())) {
-            // Server is sending a fake version of the current player
-            entity = new PlayerEntity(session.getPlayerEntity().getProfile(), packet.getEntityId(), session.getEntityCache().getNextEntityId().incrementAndGet(), position, Vector3f.ZERO, rotation);
+            entity = EntityDefinitions.PLAYER.newEntity(
+                    session,
+                    packet.getEntityId(),
+                    session.getEntityCache().getNextEntityId().incrementAndGet(),
+                    position,
+                    Vector3f.ZERO,
+                    Vector3f.ZERO
+            );
+
+            GameProfile profile = session.getPlayerEntity().getProfile();
+            entity.setProfile(profile);
+            entity.setUuid(profile.getId());
+            entity.setUsername(profile.getName());
         } else {
             entity = session.getEntityCache().getPlayerEntity(packet.getUuid());
             if (entity == null) {
@@ -58,6 +73,8 @@ public class JavaSpawnPlayerTranslator extends PacketTranslator<ServerSpawnPlaye
             entity.setPosition(position);
             entity.setRotation(rotation);
         }
+
+        entity.postInitialize(packet);
         session.getEntityCache().cacheEntity(entity);
 
         entity.sendPlayer(session);

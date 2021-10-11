@@ -29,9 +29,9 @@ import com.github.steveice10.mc.protocol.data.game.entity.Effect;
 import com.nukkitx.math.vector.Vector3f;
 import com.nukkitx.protocol.bedrock.data.entity.EntityData;
 import com.nukkitx.protocol.bedrock.data.entity.EntityFlag;
-import org.geysermc.connector.entity.Entity;
-import org.geysermc.connector.entity.living.ArmorStandEntity;
-import org.geysermc.connector.entity.living.animal.AnimalEntity;
+import org.geysermc.connector.entity.type.Entity;
+import org.geysermc.connector.entity.type.living.ArmorStandEntity;
+import org.geysermc.connector.entity.type.living.animal.AnimalEntity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 

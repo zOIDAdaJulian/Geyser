@@ -35,7 +35,7 @@ import com.nukkitx.protocol.bedrock.data.inventory.ItemStackRequest;
 import com.nukkitx.protocol.bedrock.data.inventory.StackRequestSlotInfoData;
 import com.nukkitx.protocol.bedrock.packet.ItemStackResponsePacket;
 import com.nukkitx.protocol.bedrock.packet.SetEntityLinkPacket;
-import org.geysermc.connector.entity.Entity;
+import org.geysermc.connector.entity.type.Entity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.inventory.MerchantContainer;

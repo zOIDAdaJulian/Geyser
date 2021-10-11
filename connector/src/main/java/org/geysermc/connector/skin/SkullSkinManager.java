@@ -29,7 +29,7 @@ import com.nukkitx.protocol.bedrock.data.skin.ImageData;
 import com.nukkitx.protocol.bedrock.data.skin.SerializedSkin;
 import com.nukkitx.protocol.bedrock.packet.PlayerSkinPacket;
 import org.geysermc.connector.GeyserConnector;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.utils.LanguageUtils;
 

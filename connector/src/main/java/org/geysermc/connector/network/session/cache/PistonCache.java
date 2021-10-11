@@ -33,7 +33,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.geysermc.connector.entity.player.SessionPlayerEntity;
+import org.geysermc.connector.entity.type.player.SessionPlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.collision.BoundingBox;
 import org.geysermc.connector.network.translators.world.block.entity.PistonBlockEntity;

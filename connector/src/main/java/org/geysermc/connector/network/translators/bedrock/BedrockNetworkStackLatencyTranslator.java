@@ -29,7 +29,7 @@ import com.github.steveice10.mc.protocol.packet.ingame.client.ClientKeepAlivePac
 import com.nukkitx.protocol.bedrock.data.AttributeData;
 import com.nukkitx.protocol.bedrock.packet.NetworkStackLatencyPacket;
 import com.nukkitx.protocol.bedrock.packet.UpdateAttributesPacket;
-import org.geysermc.connector.entity.attribute.GeyserAttributeType;
+import org.geysermc.connector.entity.type.attribute.GeyserAttributeType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;

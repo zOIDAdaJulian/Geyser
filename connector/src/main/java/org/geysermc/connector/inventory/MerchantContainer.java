@@ -29,7 +29,7 @@ import com.github.steveice10.mc.protocol.data.game.window.VillagerTrade;
 import com.github.steveice10.mc.protocol.data.game.window.WindowType;
 import lombok.Getter;
 import lombok.Setter;
-import org.geysermc.connector.entity.Entity;
+import org.geysermc.connector.entity.type.Entity;
 
 @Getter
 @Setter

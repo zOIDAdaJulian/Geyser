@@ -28,8 +28,8 @@ package org.geysermc.connector.network.translators.java.entity;
 import com.github.steveice10.mc.protocol.data.game.entity.metadata.Equipment;
 import com.github.steveice10.mc.protocol.packet.ingame.server.entity.ServerEntityEquipmentPacket;
 import com.nukkitx.protocol.bedrock.data.inventory.ItemData;
-import org.geysermc.connector.entity.Entity;
-import org.geysermc.connector.entity.LivingEntity;
+import org.geysermc.connector.entity.type.Entity;
+import org.geysermc.connector.entity.type.LivingEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
@@ -52,7 +52,7 @@ public class JavaEntityEquipmentTranslator extends PacketTranslator<ServerEntity
 
         if (!(entity instanceof LivingEntity livingEntity)) {
             session.getConnector().getLogger().debug("Attempted to add armor to a non-living entity type (" +
-                    entity.getEntityType().name() + ").");
+                    entity.getDefinition().identifier() + ").");
             return;
         }
 

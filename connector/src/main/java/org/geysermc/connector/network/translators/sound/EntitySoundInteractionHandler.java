@@ -26,7 +26,7 @@
 package org.geysermc.connector.network.translators.sound;
 
 import com.nukkitx.math.vector.Vector3f;
-import org.geysermc.connector.entity.Entity;
+import org.geysermc.connector.entity.type.Entity;
 import org.geysermc.connector.inventory.GeyserItemStack;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.registry.Registries;

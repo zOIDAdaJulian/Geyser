@@ -30,7 +30,7 @@ import com.github.steveice10.mc.protocol.data.game.scoreboard.ScoreboardPosition
 import com.github.steveice10.mc.protocol.packet.ingame.server.scoreboard.ServerScoreboardObjectivePacket;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.GeyserLogger;
-import org.geysermc.connector.entity.player.PlayerEntity;
+import org.geysermc.connector.entity.type.player.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.session.cache.WorldCache;
 import org.geysermc.connector.network.translators.PacketTranslator;

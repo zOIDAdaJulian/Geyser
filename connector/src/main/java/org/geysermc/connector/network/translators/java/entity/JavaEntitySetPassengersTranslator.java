@@ -30,7 +30,7 @@ import com.nukkitx.protocol.bedrock.data.entity.EntityData;
 import com.nukkitx.protocol.bedrock.data.entity.EntityLinkData;
 import com.nukkitx.protocol.bedrock.packet.SetEntityLinkPacket;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import org.geysermc.connector.entity.Entity;
+import org.geysermc.connector.entity.type.Entity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
@@ -90,7 +90,7 @@ public class JavaEntitySetPassengersTranslator extends PacketTranslator<ServerEn
                 passenger.getMetadata().put(EntityData.RIDER_MIN_ROTATION, 0f);
             }
 
-            passenger.updateBedrockMetadata(session);
+            passenger.updateBedrockMetadata();
             rider = false;
         }
 
@@ -120,7 +120,7 @@ public class JavaEntitySetPassengersTranslator extends PacketTranslator<ServerEn
             }
 
             // Force an update to the passenger metadata
-            passenger.updateBedrockMetadata(session);
+            passenger.updateBedrockMetadata();
         }
 
         switch (entity.getEntityType()) {

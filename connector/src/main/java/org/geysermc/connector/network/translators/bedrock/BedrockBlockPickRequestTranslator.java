@@ -27,7 +27,7 @@ package org.geysermc.connector.network.translators.bedrock;
 
 import com.nukkitx.math.vector.Vector3i;
 import com.nukkitx.protocol.bedrock.packet.BlockPickRequestPacket;
-import org.geysermc.connector.entity.ItemFrameEntity;
+import org.geysermc.connector.entity.type.ItemFrameEntity;
 import org.geysermc.connector.entity.type.EntityType;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
