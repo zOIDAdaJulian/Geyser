@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 public class SkullBlockEntityTranslator extends BlockEntityTranslator implements RequiresBlockState {
 
     @Override
-    public void translateTag(NbtMapBuilder builder, CompoundTag tag, int blockState) {
+    public void translateTag(GeyserSession session, NbtMapBuilder builder, CompoundTag tag, int blockState) {
         byte skullVariant = BlockStateValues.getSkullVariant(blockState);
         float rotation = BlockStateValues.getSkullRotation(blockState) * 22.5f;
         // Just in case...
@@ -60,6 +60,10 @@ public class SkullBlockEntityTranslator extends BlockEntityTranslator implements
         }
         builder.put("Rotation", rotation);
         builder.put("SkullType", skullVariant);
+        if (skullVariant == (byte) 5) {
+            builder.putBoolean("MouthMoving", session.getGeyser().getWorldManager().isPoweredDragonHead(session,
+                    (int) builder.get("x"), (int) builder.get("y"), (int) builder.get("z")));
+        }
     }
 
     public static CompletableFuture<GameProfile> getProfile(CompoundTag tag) {

@@ -30,6 +30,7 @@ import com.nukkitx.nbt.NbtMap;
 import com.nukkitx.nbt.NbtMapBuilder;
 import com.nukkitx.nbt.NbtType;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Lectern;
@@ -38,14 +39,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.plugin.Plugin;
-import org.geysermc.geyser.network.MinecraftProtocol;
-import org.geysermc.geyser.session.GeyserSession;
-import org.geysermc.geyser.translator.inventory.LecternInventoryTranslator;
+import org.geysermc.geyser.GeyserImpl;
+import org.geysermc.geyser.level.GameRule;
 import org.geysermc.geyser.level.GeyserWorldManager;
 import org.geysermc.geyser.level.block.BlockStateValues;
+import org.geysermc.geyser.network.MinecraftProtocol;
+import org.geysermc.geyser.platform.spigot.world.GeyserDragonHeadListener;
 import org.geysermc.geyser.registry.BlockRegistries;
+import org.geysermc.geyser.session.GeyserSession;
+import org.geysermc.geyser.translator.inventory.LecternInventoryTranslator;
 import org.geysermc.geyser.util.BlockEntityUtils;
-import org.geysermc.geyser.level.GameRule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,9 +63,11 @@ public class GeyserSpigotWorldManager extends GeyserWorldManager {
     protected static final int CLIENT_PROTOCOL_VERSION = MinecraftProtocol.getJavaProtocolVersion();
 
     private final Plugin plugin;
+    private final GeyserDragonHeadListener dragonHeadListener;
 
     public GeyserSpigotWorldManager(Plugin plugin) {
         this.plugin = plugin;
+        this.dragonHeadListener = new GeyserDragonHeadListener(plugin, GeyserImpl.getInstance());
     }
 
     @Override
@@ -178,6 +183,20 @@ public class GeyserSpigotWorldManager extends GeyserWorldManager {
     @Override
     public boolean hasPermission(GeyserSession session, String permission) {
         return Bukkit.getPlayer(session.getPlayerEntity().getUsername()).hasPermission(permission);
+    }
+
+    @Override
+    public boolean isPoweredDragonHead(GeyserSession session, int x, int y, int z) {
+        Player bukkitPlayer;
+        if ((bukkitPlayer = Bukkit.getPlayer(session.getPlayerEntity().getUsername())) == null) {
+            return false;
+        }
+        World world = bukkitPlayer.getWorld();
+        GeyserDragonHeadListener.DragonHeadInformation info = this.dragonHeadListener.getDragonHeads().get(new Location(world, x, y, z));
+        if (info == null) {
+            return false;
+        }
+        return info.isPowered();
     }
 
     /**
