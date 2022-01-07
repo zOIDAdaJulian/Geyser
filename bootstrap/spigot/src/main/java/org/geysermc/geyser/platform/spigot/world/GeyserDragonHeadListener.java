@@ -52,9 +52,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 public class GeyserDragonHeadListener implements Listener {
     private static final Map<BlockFace, Float> BLOCK_FACE_TO_ROTATION;
+    private static final boolean PAPER;
+
     static {
         BLOCK_FACE_TO_ROTATION = new EnumMap<>(BlockFace.class);
         BLOCK_FACE_TO_ROTATION.put(BlockFace.SOUTH, 0f);
@@ -73,6 +76,17 @@ public class GeyserDragonHeadListener implements Listener {
         BLOCK_FACE_TO_ROTATION.put(BlockFace.EAST_SOUTH_EAST, 13 * 22.5f);
         BLOCK_FACE_TO_ROTATION.put(BlockFace.SOUTH_EAST, 14 * 22.5f);
         BLOCK_FACE_TO_ROTATION.put(BlockFace.SOUTH_SOUTH_EAST, 15 * 22.5f);
+
+        boolean paper = false;
+        try {
+            // Check to see if we can use a more efficient way of scanning through tile entities of a world
+            Chunk.class.getMethod("getTileEntities", Predicate.class, boolean.class);
+            paper = true;
+        } catch (NoSuchMethodException ignored) {
+            GeyserImpl.getInstance().getLogger().debug("Chunk#getTileEntities(Predicate, boolean) method not found. " +
+                    "This is safe to ignore but switching to a later version of Paper may improve performance.");
+        }
+        PAPER = paper;
     }
 
     @Getter
@@ -97,13 +111,24 @@ public class GeyserDragonHeadListener implements Listener {
     }
 
     private void cacheDragonHeads(Chunk chunk) {
-        for (BlockState blockState : chunk.getTileEntities(false)) {
-            Block block = blockState.getBlock();
-            Material material = block.getType();
-            if (material != Material.DRAGON_HEAD && material != Material.DRAGON_WALL_HEAD) {
-                continue;
+        if (PAPER) {
+            // We don't need to create the block state of any given block; we just need to find the ender dragon head block entities
+            chunk.getTileEntities((block) -> {
+                Material material = block.getType();
+                if (material == Material.DRAGON_HEAD || material == Material.DRAGON_WALL_HEAD) {
+                    this.dragonHeads.put(block.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
+                }
+                return false;
+            }, false);
+        } else {
+            for (BlockState blockState : chunk.getTileEntities()) {
+                Block block = blockState.getBlock();
+                Material material = block.getType();
+                if (material != Material.DRAGON_HEAD && material != Material.DRAGON_WALL_HEAD) {
+                    continue;
+                }
+                this.dragonHeads.put(blockState.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
             }
-            this.dragonHeads.put(blockState.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
         }
     }
 
@@ -118,7 +143,7 @@ public class GeyserDragonHeadListener implements Listener {
         while (it.hasNext()) {
             Map.Entry<Location, DragonHeadInformation> entry = it.next();
             Location location = entry.getKey();
-            if (location.getWorld() == world && location.getBlockX() >> 4 == chunkX && location.getBlockZ() >> 4 == chunkZ) {
+            if (location.getWorld().equals(world) && location.getBlockX() >> 4 == chunkX && location.getBlockZ() >> 4 == chunkZ) {
                 it.remove();
             }
         }
@@ -130,8 +155,11 @@ public class GeyserDragonHeadListener implements Listener {
             return;
         }
         Block block = event.getBlockPlaced();
-        // Clients will request this when they get the block entity data packet
-        this.dragonHeads.put(block.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
+        Material material = block.getType();
+        if (material == Material.DRAGON_HEAD || material == Material.DRAGON_WALL_HEAD) {
+            // Clients will request this when they get the block entity data packet
+            this.dragonHeads.put(block.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -139,7 +167,11 @@ public class GeyserDragonHeadListener implements Listener {
         if (event.isCancelled()) {
             return;
         }
-        this.dragonHeads.remove(event.getBlock().getLocation());
+        Block block = event.getBlock();
+        Material material = block.getType();
+        if (material == Material.DRAGON_HEAD || material == Material.DRAGON_WALL_HEAD) {
+            this.dragonHeads.remove(block.getLocation());
+        }
     }
 
     public void onTick() {
