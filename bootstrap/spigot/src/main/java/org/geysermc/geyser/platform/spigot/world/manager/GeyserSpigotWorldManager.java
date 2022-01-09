@@ -30,7 +30,6 @@ import com.nukkitx.nbt.NbtMap;
 import com.nukkitx.nbt.NbtMapBuilder;
 import com.nukkitx.nbt.NbtType;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Lectern;
@@ -192,7 +191,7 @@ public class GeyserSpigotWorldManager extends GeyserWorldManager {
             return false;
         }
         World world = bukkitPlayer.getWorld();
-        GeyserDragonHeadListener.DragonHeadInformation info = this.dragonHeadListener.getDragonHeads().get(new Location(world, x, y, z));
+        GeyserDragonHeadListener.DragonHeadInformation info = this.dragonHeadListener.getDragonHead(world, x, y, z);
         if (info == null) {
             return false;
         }

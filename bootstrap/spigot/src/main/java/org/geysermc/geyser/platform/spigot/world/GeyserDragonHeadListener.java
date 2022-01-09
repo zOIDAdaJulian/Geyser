@@ -54,7 +54,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
-public class GeyserDragonHeadListener implements Listener {
+public final class GeyserDragonHeadListener implements Listener {
     private static final Map<BlockFace, Float> BLOCK_FACE_TO_ROTATION;
     private static final boolean PAPER;
 
@@ -89,12 +89,13 @@ public class GeyserDragonHeadListener implements Listener {
         PAPER = paper;
     }
 
-    @Getter
     private final Map<Location, DragonHeadInformation> dragonHeads = new ConcurrentHashMap<>();
     private final GeyserImpl geyser;
+    private final Plugin plugin;
 
     public GeyserDragonHeadListener(Plugin plugin, GeyserImpl geyser) {
         this.geyser = geyser;
+        this.plugin = plugin;
         Bukkit.getPluginManager().registerEvents(this, plugin);
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::onTick, 0, 1);
         // Catch chunks already loaded
@@ -103,6 +104,38 @@ public class GeyserDragonHeadListener implements Listener {
                 cacheDragonHeads(chunk);
             }
         }
+    }
+
+    public DragonHeadInformation getDragonHead(World world, int x, int y, int z) {
+        Location location = new Location(world, x, y, z);
+        DragonHeadInformation info = dragonHeads.get(location);
+        if (info == null) {
+            // Run a task on the next tick to find this plugin, because some world context believes there's a dragon head
+            // here and we are unaware of it
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                if (!world.isChunkLoaded(x >> 4, z >> 4)) {
+                    // Precaution
+                    return;
+                }
+                // Do a computeIfAbsent check to see if another scheduled task already caught this location
+                dragonHeads.computeIfAbsent(location, $ -> {
+                    Block block = world.getBlockAt(x, y, z);
+                    boolean isPowered = block.isBlockIndirectlyPowered();
+                    DragonHeadInformation newInfo = new DragonHeadInformation(block, isPowered);
+                    if (isPowered) {
+                        // No need to update if the block is not powered since Bedrock already thinks it's not powered
+                        updateBedrockClients(newInfo);
+                    }
+                    return newInfo;
+                });
+            });
+        }
+        return info;
+    }
+
+    private boolean isDragonHead(Block block) {
+        Material material = block.getType();
+        return material == Material.DRAGON_HEAD || material == Material.DRAGON_WALL_HEAD;
     }
 
     @EventHandler
@@ -114,8 +147,7 @@ public class GeyserDragonHeadListener implements Listener {
         if (PAPER) {
             // We don't need to create the block state of any given block; we just need to find the ender dragon head block entities
             chunk.getTileEntities((block) -> {
-                Material material = block.getType();
-                if (material == Material.DRAGON_HEAD || material == Material.DRAGON_WALL_HEAD) {
+                if (isDragonHead(block)) {
                     this.dragonHeads.put(block.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
                 }
                 return false;
@@ -123,8 +155,7 @@ public class GeyserDragonHeadListener implements Listener {
         } else {
             for (BlockState blockState : chunk.getTileEntities()) {
                 Block block = blockState.getBlock();
-                Material material = block.getType();
-                if (material != Material.DRAGON_HEAD && material != Material.DRAGON_WALL_HEAD) {
+                if (!isDragonHead(block)) {
                     continue;
                 }
                 this.dragonHeads.put(blockState.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
@@ -155,8 +186,7 @@ public class GeyserDragonHeadListener implements Listener {
             return;
         }
         Block block = event.getBlockPlaced();
-        Material material = block.getType();
-        if (material == Material.DRAGON_HEAD || material == Material.DRAGON_WALL_HEAD) {
+        if (isDragonHead(block)) {
             // Clients will request this when they get the block entity data packet
             this.dragonHeads.put(block.getLocation(), new DragonHeadInformation(block, block.isBlockIndirectlyPowered()));
         }
@@ -168,8 +198,7 @@ public class GeyserDragonHeadListener implements Listener {
             return;
         }
         Block block = event.getBlock();
-        Material material = block.getType();
-        if (material == Material.DRAGON_HEAD || material == Material.DRAGON_WALL_HEAD) {
+        if (isDragonHead(block)) {
             this.dragonHeads.remove(block.getLocation());
         }
     }
@@ -238,7 +267,7 @@ public class GeyserDragonHeadListener implements Listener {
     public static final class DragonHeadInformation {
         private final Block block;
         @Setter
-        private boolean isPowered;
+        private volatile boolean isPowered;
 
         public DragonHeadInformation(Block block, boolean isPowered) {
             this.block = block;
