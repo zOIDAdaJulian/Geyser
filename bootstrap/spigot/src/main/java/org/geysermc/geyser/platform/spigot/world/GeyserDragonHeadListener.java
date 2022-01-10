@@ -110,8 +110,9 @@ public final class GeyserDragonHeadListener implements Listener {
         Location location = new Location(world, x, y, z);
         DragonHeadInformation info = dragonHeads.get(location);
         if (info == null) {
-            // Run a task on the next tick to find this plugin, because some world context believes there's a dragon head
-            // here and we are unaware of it
+            // Run a task on the next tick to find this head, because some world context believes there's a dragon head
+            // here and we are unaware of it (for example if WorldEdit added it in)
+            // This should be run on the server tick to prevent thread blocking
             Bukkit.getScheduler().runTask(plugin, () -> {
                 if (!world.isChunkLoaded(x >> 4, z >> 4)) {
                     // Precaution
