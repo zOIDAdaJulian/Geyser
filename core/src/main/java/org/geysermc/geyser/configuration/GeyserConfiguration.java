@@ -98,6 +98,10 @@ public interface GeyserConfiguration {
 
     boolean isAllowCustomSkulls();
 
+    int getMaxVisibleCustomSkulls();
+
+    int getCustomSkullRenderDistance();
+
     IMetricsInfo getMetrics();
 
     interface IBedrockConfiguration {
