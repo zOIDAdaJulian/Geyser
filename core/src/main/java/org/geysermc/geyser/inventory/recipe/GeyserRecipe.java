@@ -23,18 +23,14 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.translator.protocol.java;
+package org.geysermc.geyser.inventory.recipe;
 
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundUpdateTagsPacket;
-import org.geysermc.geyser.session.GeyserSession;
-import org.geysermc.geyser.translator.protocol.PacketTranslator;
-import org.geysermc.geyser.translator.protocol.Translator;
-
-@Translator(packet = ClientboundUpdateTagsPacket.class)
-public class JavaUpdateTagsTranslator extends PacketTranslator<ClientboundUpdateTagsPacket> {
-
-    @Override
-    public void translate(GeyserSession session, ClientboundUpdateTagsPacket packet) {
-        session.getTagCache().loadPacket(session, packet);
-    }
+/**
+ * A more compact version of {@link com.github.steveice10.mc.protocol.data.game.recipe.Recipe}.
+ */
+public interface GeyserRecipe {
+    /**
+     * Whether the recipe is flexible or not in which items can be placed where.
+     */
+    boolean isShaped();
 }

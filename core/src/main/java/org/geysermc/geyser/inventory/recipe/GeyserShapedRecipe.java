@@ -23,18 +23,21 @@
  * @link https://github.com/GeyserMC/Geyser
  */
 
-package org.geysermc.geyser.translator.protocol.java;
+package org.geysermc.geyser.inventory.recipe;
 
-import com.github.steveice10.mc.protocol.packet.ingame.clientbound.ClientboundUpdateTagsPacket;
-import org.geysermc.geyser.session.GeyserSession;
-import org.geysermc.geyser.translator.protocol.PacketTranslator;
-import org.geysermc.geyser.translator.protocol.Translator;
+import com.github.steveice10.mc.protocol.data.game.entity.metadata.ItemStack;
+import com.github.steveice10.mc.protocol.data.game.recipe.Ingredient;
+import com.github.steveice10.mc.protocol.data.game.recipe.RecipeType;
+import com.github.steveice10.mc.protocol.data.game.recipe.data.ShapedRecipeData;
 
-@Translator(packet = ClientboundUpdateTagsPacket.class)
-public class JavaUpdateTagsTranslator extends PacketTranslator<ClientboundUpdateTagsPacket> {
+public record GeyserShapedRecipe(int width, int height, Ingredient[] ingredients, ItemStack result) implements GeyserRecipe {
+
+    public GeyserShapedRecipe(ShapedRecipeData data) {
+        this(data.getWidth(), data.getHeight(), data.getIngredients(), data.getResult());
+    }
 
     @Override
-    public void translate(GeyserSession session, ClientboundUpdateTagsPacket packet) {
-        session.getTagCache().loadPacket(session, packet);
+    public boolean isShaped() {
+        return true;
     }
 }
