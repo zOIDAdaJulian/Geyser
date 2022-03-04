@@ -26,7 +26,6 @@
 package org.geysermc.geyser.session;
 
 import com.github.steveice10.mc.auth.data.GameProfile;
-import com.github.steveice10.mc.auth.exception.request.AuthPendingException;
 import com.github.steveice10.mc.auth.exception.request.InvalidCredentialsException;
 import com.github.steveice10.mc.auth.exception.request.RequestException;
 import com.github.steveice10.mc.auth.service.AuthenticationService;
@@ -119,7 +118,6 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -640,7 +638,6 @@ public class GeyserSession implements GeyserConnection, CommandSender {
         loggingIn = true;
 
         // Use a future to prevent timeouts as all the authentication is handled sync
-        // This will be changed with the new protocol library.
         CompletableFuture.supplyAsync(() -> {
             try {
                 if (password != null && !password.isEmpty()) {
@@ -697,10 +694,58 @@ public class GeyserSession implements GeyserConnection, CommandSender {
         });
     }
 
+    public void authenticateWithRefreshToken(String refreshToken) {
+        if (loggedIn) {
+            geyser.getLogger().severe(GeyserLocale.getLocaleStringLog("geyser.auth.already_loggedin", getAuthData().name()));
+            return;
+        }
+
+        loggingIn = true;
+
+        CompletableFuture.supplyAsync(() -> {
+            MsaAuthenticationService service = new MsaAuthenticationService(GeyserImpl.OAUTH_CLIENT_ID);
+            service.setRefreshToken(refreshToken);
+            try {
+                service.login();
+            } catch (RequestException e) {
+                geyser.getLogger().error("Error while attempting to use refresh token for " + name() + "!", e);
+                return Boolean.FALSE;
+            }
+
+            GameProfile profile = service.getSelectedProfile();
+            if (profile == null) {
+                // Java account is offline
+                disconnect(GeyserLocale.getPlayerLocaleString("geyser.network.remote.invalid_account", clientData.getLanguageCode()));
+                return null;
+            }
+
+            protocol = new MinecraftProtocol(profile, service.getAccessToken());
+            geyser.saveRefreshToken(name(), service.getRefreshToken());
+            return Boolean.TRUE;
+        }).whenComplete((successful, ex) -> {
+            if (this.closed) {
+                return;
+            }
+            if (successful == Boolean.FALSE) {
+                // The player is waiting for a spawn packet, so let's spawn them in now to show them forms
+                connect();
+                // Will be cached for after login
+                LoginEncryptionUtils.buildAndShowTokenExpiredWindow(this);
+                return;
+            }
+
+            connectDownstream();
+        });
+    }
+
+    public void authenticateWithMicrosoftCode() {
+        authenticateWithMicrosoftCode(false);
+    }
+
     /**
      * Present a form window to the user asking to log in with another web browser
      */
-    public void authenticateWithMicrosoftCode() {
+    public void authenticateWithMicrosoftCode(boolean offlineAccess) {
         if (loggedIn) {
             geyser.getLogger().severe(GeyserLocale.getLocaleStringLog("geyser.auth.already_loggedin", getAuthData().name()));
             return;
@@ -713,65 +758,64 @@ public class GeyserSession implements GeyserConnection, CommandSender {
         packet.setTime(16000);
         sendUpstreamPacket(packet);
 
-        // new thread so clients don't timeout
-        MsaAuthenticationService msaAuthenticationService = new MsaAuthenticationService(GeyserImpl.OAUTH_CLIENT_ID);
+        final PendingMicrosoftAuthentication.AuthenticationTask task = geyser.getPendingMicrosoftAuthentication().getOrCreateTask(
+                getAuthData().xuid()
+        );
+        task.setOnline(true);
+        task.resetTimer();
 
-        // Use a future to prevent timeouts as all the authentication is handled sync
-        // This will be changed with the new protocol library.
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                return msaAuthenticationService.getAuthCode();
-            } catch (RequestException e) {
-                throw new CompletionException(e);
-            }
-        }).whenComplete((response, ex) -> {
-            if (ex != null) {
-                ex.printStackTrace();
-                disconnect(ex.toString());
-                return;
-            }
-            LoginEncryptionUtils.buildAndShowMicrosoftCodeWindow(this, response);
-            attemptCodeAuthentication(msaAuthenticationService);
-        });
+        if (task.getAuthentication().isDone()) {
+            onMicrosoftLoginComplete(task);
+        } else {
+            task.getCode(offlineAccess).whenComplete((response, ex) -> {
+                boolean connected = !closed;
+                if (ex != null) {
+                    if (connected) {
+                        geyser.getLogger().error("Failed to get Microsoft auth code", ex);
+                        disconnect(ex.toString());
+                    }
+                    task.cleanup(); // error getting auth code -> clean up immediately
+                } else if (connected) {
+                    LoginEncryptionUtils.buildAndShowMicrosoftCodeWindow(this, response);
+                    task.getAuthentication().whenComplete((r, $) -> onMicrosoftLoginComplete(task));
+                }
+            });
+        }
     }
 
     /**
-     * Poll every second to see if the user has successfully signed in
+     * If successful, also begins connecting to the Java server.
      */
-    private void attemptCodeAuthentication(MsaAuthenticationService msaAuthenticationService) {
-        if (loggedIn || closed) {
-            return;
+    public boolean onMicrosoftLoginComplete(PendingMicrosoftAuthentication.AuthenticationTask task) {
+        if (closed) {
+            return false;
         }
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                msaAuthenticationService.login();
-                GameProfile profile = msaAuthenticationService.getSelectedProfile();
-                if (profile == null) {
-                    // Java account is offline
-                    disconnect(GeyserLocale.getPlayerLocaleString("geyser.network.remote.invalid_account", clientData.getLanguageCode()));
-                    return null;
-                }
-
-                return new MinecraftProtocol(profile, msaAuthenticationService.getAccessToken());
-            } catch (RequestException e) {
-                throw new CompletionException(e);
-            }
-        }).whenComplete((response, ex) -> {
-            if (ex != null) {
-                if (!(ex instanceof CompletionException completionException) || !(completionException.getCause() instanceof AuthPendingException)) {
-                    geyser.getLogger().error("Failed to log in with Microsoft code!", ex);
-                    disconnect(ex.toString());
-                } else {
-                    // Wait one second before trying again
-                    geyser.getScheduledThread().schedule(() -> attemptCodeAuthentication(msaAuthenticationService), 1, TimeUnit.SECONDS);
-                }
-                return;
-            }
-            if (!closed) {
-                this.protocol = response;
+        task.cleanup(); // player is online -> remove pending authentication immediately
+        Throwable ex = task.getLoginException();
+        if (ex != null) {
+            geyser.getLogger().error("Failed to log in with Microsoft code!", ex);
+            disconnect(ex.toString());
+        } else {
+            MsaAuthenticationService service = task.getMsaAuthenticationService();
+            GameProfile selectedProfile = service.getSelectedProfile();
+            if (selectedProfile == null) {
+                disconnect(GeyserLocale.getPlayerLocaleString(
+                        "geyser.network.remote.invalid_account",
+                        clientData.getLanguageCode()
+                ));
+            } else {
+                this.protocol = new MinecraftProtocol(
+                        selectedProfile,
+                        service.getAccessToken()
+                );
                 connectDownstream();
+
+                // Save our refresh token for later use
+                geyser.saveRefreshToken(name(), service.getRefreshToken());
+                return true;
             }
-        });
+        }
+        return false;
     }
 
     /**
@@ -970,6 +1014,12 @@ public class GeyserSession implements GeyserConnection, CommandSender {
             if (upstream != null && !upstream.isClosed()) {
                 geyser.getSessionManager().removeSession(this);
                 upstream.disconnect(reason);
+            }
+            if (authData != null) {
+                PendingMicrosoftAuthentication.AuthenticationTask task = geyser.getPendingMicrosoftAuthentication().getTask(authData.xuid());
+                if (task != null) {
+                    task.setOnline(false);
+                }
             }
         }
 

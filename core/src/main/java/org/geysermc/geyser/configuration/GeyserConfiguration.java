@@ -44,6 +44,9 @@ public interface GeyserConfiguration {
 
     IRemoteConfiguration getRemote();
 
+    List<String> getSavedUserLogins();
+
+    @Deprecated
     Map<String, ? extends IUserAuthenticationInfo> getUserAuths();
 
     boolean isCommandSuggestions();
@@ -103,6 +106,8 @@ public interface GeyserConfiguration {
     int getCustomSkullRenderDistance();
 
     IMetricsInfo getMetrics();
+
+    int getPendingAuthenticationTimeout();
 
     interface IBedrockConfiguration {
 
