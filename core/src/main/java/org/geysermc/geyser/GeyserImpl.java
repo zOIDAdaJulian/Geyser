@@ -100,7 +100,7 @@ public class GeyserImpl implements GeyserApi {
             .enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
 
     public static final String NAME = "Geyser";
-    public static final String GIT_VERSION = "git-master-206a3f2"; // A fallback for running in IDEs
+    public static final String GIT_VERSION = "git-master-c4b2a7e"; // A fallback for running in IDEs
     public static final String VERSION = "2.0.2-SNAPSHOT (" + GIT_VERSION + ")"; // A fallback for running in IDEs
 
     /**
