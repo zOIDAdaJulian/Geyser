@@ -121,6 +121,7 @@ public class BedrockMovePlayerTranslator extends PacketTranslator<MovePlayerPack
                     session.sendDownstreamPacket(movePacket);
 
                     if (notMovingUp) {
+                        int floorY = position.getFloorY();
                         // The void floor is offset about 40 blocks below the bottom of the world
                         BedrockDimension bedrockDimension = session.getChunkCache().getBedrockDimension();
                         int voidFloorLocation = bedrockDimension.minY() - 40;
